@@ -1,0 +1,14 @@
+--- 
+hardening_auditd_apply_audit_rules: 'yes'
+hardening_auditd_action_mail_account: root
+hardening_auditd_admin_spaceleft_action: suspend
+hardening_auditd_diskerror_action: suspend
+hardening_auditd_diskfull_action: suspend
+hardening_auditd_maxlog_file: 8
+hardening_auditd_maxlog_file_action: keep_logs
+hardening_auditd_mode: 1
+hardening_auditd_num_logs: 5
+hardening_auditd_space_left: 75
+hardening_auditd_spaceleft_action: email
+hardening_grub_audit_backlog_cmdline: audit_backlog_limit=8192
+hardening_grub_audit_cmdline: audit=1

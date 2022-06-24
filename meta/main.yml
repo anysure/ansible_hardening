@@ -16,6 +16,12 @@ galaxy_info:
     versions:
     - bullseye
 
-  galaxy_tags: []
+  galaxy_tags:
+    - cis
+    - disa
+    - hardening
+    - security
+    - system
+    - systemd
 
 dependencies: []

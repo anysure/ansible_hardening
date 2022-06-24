@@ -1,2 +1,114 @@
 ---
 # handlers file for ansible_hardening
+- name: Restart auditd
+  become: true
+  ansible.builtin.service:
+    name: auditd
+    state: restarted
+
+  name: Generate auditd
+  become: true
+  ansible.builtin.command: augenrules
+
+- name: Restart sysctl
+  become: true
+  ansible.builtin.service:
+    name: systemd-sysctl
+    state: restarted
+
+- name: Reload systemd
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: 'yes'
+
+- name: Enable aidecheck
+  become: true
+  ansible.builtin.systemd:
+    name: aidecheck.timer
+    enabled: 'yes'
+    state: started
+
+- name: Disable aidecheck
+  become: true
+  ansible.builtin.systemd:
+    name: aidecheck.timer
+    state: stopped
+    enabled: 'no'
+
+- name: Mask aidecheck
+  become: true
+  ansible.builtin.systemd:
+    name: aidecheck.timer
+    masked: 'yes'
+    stated: stopped
+    enabled: 'no'
+
+- name: Restart sshd
+  become: true
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+
+- name: Restart postfix
+  become: true
+  ansible.builtin.service:
+    name: postfix
+    state: restarted
+
+- name: apt-get autoremove
+  become: true
+  ansible.builtin.apt:
+    autoremove: 'yes'
+
+- name: apt-get clean
+  become: true
+  ansible.builtin.apt:
+    autoclean: 'yes'
+
+- name: Mask apport
+  become: true
+  ansible.builtin.systemd:
+    name: apport.service
+    masked: 'yes'
+    enabled: 'no'
+    state: stopped
+
+- name: dnf autoremove
+  ansible.builtin.dnf:
+    autoremove: 'yes'
+
+- name: Enable haveged
+  become: true
+  ansible.builtin.systemd:
+    name: haveged
+    enabled: 'yes'
+    state: started
+
+- name: Reboot node
+  become: true
+  ansible.builtin.reboot:
+    pre_reboot_delay: "{{ 3600 | random(start=1) }}"
+
+- name: Update cracklib debian
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  become: true
+  ansible.builtin.command: update-cracklib
+
+- name: Update cracklib redhat
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  become: true
+  ansible.builtin.command: create-cracklib-dict /usr/share/dict/*
+
+- name: Update grub
+  become: true
+  ansible.builtin.command: update-grub
+
+- name: Update grub2
+  become: true
+  ansible.builtin.command: grub2-mkconfig
+
+- name: rkhunter propupd
+  become: true
+  ansible.builtin.command: rkhunter --propupd

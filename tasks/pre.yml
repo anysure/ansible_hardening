@@ -1,0 +1,45 @@
+- name: RHEL Block
+
+  - name: Update subscription info on RHEL
+    ansible.builtin.command: subscription-manager refresh --force
+    changed_when: false
+    become: true
+
+  - name: python3-rpm installation
+    ansible.builtin.dnf:
+      name: "python3-rpm"
+      state: present
+    become: true
+
+  when: ansible_distribution == "RedHat"
+
+- name: Debian Block
+
+  - name: Install python3-pexpect
+    ansible.builtin.package:
+      name: python3-pexpect
+      state: present
+      update_cache: 'yes'
+    become: true
+
+  when: ansible_os_family == "Debian"
+
+- name: python3-passlib installation
+  ansible.builtin.package:
+    name: python3-passlib
+    state: present
+  register: python3_passlib
+  failed_when:
+    - python3_passlib.rc is defined
+    - python3_passlib.rc != 0
+  become: true
+
+- name: pip passlib installation
+  ansible.builtin.pip:
+    name: "passlib"
+    state: present
+  become: true
+
+- name: EFI or UEFI booting check
+  ansible.builtin.set_fact:
+    booted_with_efi: "{{ ansible_mounts | selectattr('mount', 'equalto', '/boot/efi') | list | length > 0 }}"
