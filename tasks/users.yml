@@ -1,0 +1,35 @@
+---
+- name: Configure adduser.conf
+  ansible.builtin.template:
+    src: etc/adduser.conf.j2
+    dest: /etc/adduser.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  become: true
+
+- name: Configure useradd
+  ansible.builtin.template:
+    src: etc/default/useradd.j2
+    dest: /etc/default/useradd
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  become: true
+
+- name: Get all home directories in /home, but skip ignored users
+  find:
+    paths: /home/
+    recurse: false
+    file_type: directory
+    excludes: "{{ hardening_ignore_home_folder_users | join(',') }}"
+  register: home_directories
+
+- name: Set ownership of /home directories to 0700
+  file:
+    mode: 0700
+    path: "{{ item.path }}"
+    state: directory
+  loop: "{{ home_directories.files }}"

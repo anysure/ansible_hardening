@@ -1,0 +1,26 @@
+---
+- name: disable file system kernel modules
+  ansible.builtin.lineinfile:
+    dest: /etc/modprobe.d/disablefs.conf
+    line: "install {{ item }} /bin/true"
+    mode: 0644
+    owner: root
+    group: root
+    state: present
+    create: 'yes'
+  with_items:
+    - "{{ hardening_modules_fs_blocklist }}"
+  become: true
+
+- name: disable kernel network modules
+  ansible.builtin.lineinfile:
+    dest: /etc/modprobe.d/disablenet.conf
+    line: "install {{ item }} /bin/true"
+    mode: 0644
+    owner: root
+    group: root
+    state: present
+    create: 'yes'
+  with_items:
+    - "{{ hardening_modules_net_blocklist }}"
+  become: true

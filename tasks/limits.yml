@@ -1,0 +1,44 @@
+---
+- name: Systemd system.conf
+  ansible.builtin.template:
+    src: etc/systemd/system.conf.j2
+    dest: /etc/systemd/system.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+    - Reload systemd
+  become: true
+
+- name: Systemd user.conf
+  ansible.builtin.template:
+    src: etc/systemd/user.conf.j2
+    dest: /etc/systemd/user.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+    - Reload systemd
+  become: true
+
+- name: Configure limits.conf
+  ansible.builtin.template:
+    src: etc/security/limits.conf.j2
+    dest: /etc/security/limits.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  become: true
+
+- name: Configure coredump.conf
+  ansible.builtin.template:
+    src: etc/systemd/coredump.conf.j2
+    dest: /etc/systemd/coredump.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  become: true

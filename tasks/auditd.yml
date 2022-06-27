@@ -1,9 +1,8 @@
 --- 
 
 - name: Set Debian audit grub cmdline
-  become: true
   ansible.builtin.lineinfile:
-    line: 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX {{ grub_audit_cmdline }} {{ grub_audit_backlog_cmdline }}"'
+    line: 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX {{ hardening_audit_grub_cmdline }} {{ hardening_audit_grub_backlog_cmdline }}"'
     dest: /etc/default/grub.d/99-hardening-audit.cfg
     state: present
     create: 'yes'
@@ -11,31 +10,33 @@
     owner: root
     group: root
   when: ansible_os_family == "Debian"
+  become: true
 
 - name: Set RedHat audit grub cmdline
-  become: true
-  ansible.builtin.command: 'grubby --update-kernel=ALL --args="{{ grub_audit_cmdline }} {{ grub_audit_backlog_cmdline }}"'
+  ansible.builtin.command: 'grubby --update-kernel=ALL --args="{{ hardening_grub_audit_cmdline }} {{ hardening_grub_audit_backlog_cmdline }}"'
   register: grubby_update_kernel
   when: ansible_os_family == "RedHat"
   changed_when: grubby_update_kernel.rc != 0
   failed_when: grubby_update_kernel.rc != 0
+  become: true
 
 - name: Install auditd package
-  package:
-    name: '{{ auditd_package }}'
+  ansible.builtin.package:
+    name: '{{ hardening_auditd_package }}'
     state: 'present'
+  become: true
 
 - name: Configure auditd 
-  template:
+  ansible.builtin.template:
     src: 'etc/audit/auditd.conf.j2'
     dest: '/etc/audit/auditd.conf'
     owner: 'root'
     group: 'root'
     mode: '0640'
-  notify: 'restart-auditd'
+  notify: 'Restart auditd'
+  become: true
 
 - name: Configure audit.rules
-  become: true
   ansible.builtin.template:
     src: etc/audit/rules.d/hardening.rules.j2
     dest: /etc/audit/rules.d/hardening.rules
@@ -43,6 +44,6 @@
     mode: 0600
     owner: root
     group: root
-  notify:
-  notify: 'restart-auditd'
+  notify: 'Restart auditd'
+  become: true
 

@@ -1,7 +1,9 @@
+--- 
 - name: RHEL Block
+  block: 
 
   - name: Update subscription info on RHEL
-    ansible.builtin.command: subscription-manager refresh --force
+    ansible.builtin.command: "subscription-manager refresh --force"
     changed_when: false
     become: true
 
@@ -14,6 +16,7 @@
   when: ansible_distribution == "RedHat"
 
 - name: Debian Block
+  block: 
 
   - name: Install python3-pexpect
     ansible.builtin.package:

@@ -1,11 +1,7 @@
 ---
-- name: Add nameserver to resolv.conf
+- name: "Configure resolv.conf"
+  ansible.builtin.template:
+    src: "etc/resolv.conf.j2"
+    dest: "/etc/resolv.conf"
+    mode: "0644"
   become: true
-  ansible.builtin.lineinfile:
-    dest: /etc/resolv.conf
-    line: "nameserver {{ item }}"
-    mode: 0644
-    owner: root
-    group: root
-    state: present
-  with_items: "{{ dns | split }}"

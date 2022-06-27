@@ -1,0 +1,64 @@
+---
+- name: Install aide
+  ansible.builtin.package:
+    name: '{{ hardening_aide_package }}'
+    state: present
+  become: true
+
+- name: Verify that aide configuration directory exists
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: aide_conf
+  check_mode: no
+  with_items:
+    - "/etc/aide/aide.conf.d"
+    - "/etc/aide.conf"
+  become: true
+
+- name: Exclude certain directories from aide
+  ansible.builtin.template:
+    src: 99_aide_exclusions.j2
+    dest: /etc/aide/aide.conf.d/99_aide_exclusions
+  when: aide_conf.results[0].stat.exists | bool
+  become: true
+
+- name: Validate aide Configuration
+  shell: aide -D -c /etc/aide.conf
+  when: aide_conf.changed
+
+- name: Initialize aide (this will take a few minutes)
+  # NOTE(hwoarang): aideinit is an Ubuntu wrapper. An alternative
+  # would be to use aideinit || aide -i but that will possibly mask
+  # genuine aideinit failures.
+  ansible.builtin.shell: "{{ hardening_aide_init_command }}"
+  changed_when: false
+  register: aide_init
+  when:
+    - aide_conf.results[0].stat.exists | bool or aide_conf.results[1].stat.exists | bool
+    - not aide_database.stat.exists | bool
+  become: true
+
+# NOTE(mhayden): This is only needed for CentOS 7, RHEL 7 and SUSE since Ubuntu
+# copies the new AIDE database into place automatically with its AIDE wrapper
+# script.
+- name: Move aide database into place
+  ansible.builtin.command: "mv {{ hardening_aide_database_out_file }} {{ hardening_aide_database_file }}"
+  changed_when: false
+  when:
+    - aide_init is not skipped
+    - ansible_facts['pkg_mgr'] == 'dnf'
+  become: true
+
+# NOTE(mhayden): This is only needed for CentOS 7, RHEL 7 and SUSE since the AIDE
+# package doesn't come with a cron job file. Ubuntu packages a cron job for
+# AIDE checks already.
+- name: Create aide cron job
+  ansible.builtin.cron:
+    name: aide
+    cron_file: aide
+    user: root
+    special_time: daily
+    job: "/sbin/aide --check | /bin/mail -s \"$HOSTNAME - Daily aide integrity check run\" {{ hardening_aide_email }}"
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+  become: true

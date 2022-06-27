@@ -1,4 +1,22 @@
 ---
+hardening_aide_package: aide
+hardening_aide_init_command: "if test -x /usr/sbin/aideinit; then aideinit; else aide -i; fi"
+hardening_aide_db_new: /var/lib/aide/aide.db.new.gz
+hardening_aide_email: root
+
+hardening_auditd_package: 'audit'
+hardening_audit_grub_cmdline: 'audit=1'
+hardening_audit_grub_backlog_cmdline: 'audit_backlog_limit=8192'
+
+hardening_auditd_num_logs: 5
+hardening_auditd_max_log_file: 7
+hardening_auditd_max_log_file_action: keep_logs 
+hardening_auditd_space_left: 75
+hardening_auditd_space_left_action: SYSLOG
+hardening_auditd_action_mail_acct: root
+hardening_auditd_admin_space_left_action: SUSPEND
+hardening_auditd_disk_full_action: SUSPEND
+hardening_auditd_disk_error_action: SUSPEND
 
 packages_pam_ccreds: 'pam_ccreds'
 nologin_shell_path: '/sbin/nologin'
@@ -40,6 +58,6 @@ useradd_mail_dir: /var/spool/mail
 useradd_create_home: true
 
 modprobe_package: 'module-init-tools'
-auditd_package: 'audit'
+
 
 hidepid_option: '2'  # allowed values: 0, 1, 2

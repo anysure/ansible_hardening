@@ -1,6 +1,5 @@
 ---
-- name: create custom facts directory
-  become: true
+- name: Create custom facts directory
   ansible.builtin.file:
     path: /etc/ansible/facts.d
     recurse: true
@@ -8,33 +7,34 @@
     mode: 0755
     owner: root
     group: root
-
-- name: systemd version fact
   become: true
+
+- name: Set systemd version fact
   ansible.builtin.template:
     src: etc/ansible/facts.d/systemd.fact
     dest: /etc/ansible/facts.d/systemd.fact
     mode: 0755
     owner: root
     group: root
-
-- name: cpuinfo rdrand fact
   become: true
+
+- name: Set cpuinfo rdrand fact
   ansible.builtin.template:
     src: etc/ansible/facts.d/cpuinfo.fact
     dest: /etc/ansible/facts.d/cpuinfo.fact
     mode: 0755
     owner: root
     group: root
-
-- name: ssh keys fact
   become: true
+
+- name: Set ssh keys fact
   ansible.builtin.template:
     src: etc/ansible/facts.d/sshkeys.fact
     dest: /etc/ansible/facts.d/sshkeys.fact
     mode: 0755
     owner: root
     group: root
+  become: true
 
-- name: update facts
+- name: Update facts
   ansible.builtin.setup: ~

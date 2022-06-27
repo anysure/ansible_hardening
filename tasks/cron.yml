@@ -1,0 +1,74 @@
+---
+- name: Remove cron.deny and at.deny
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/at.deny
+    - /etc/cron.deny
+  become: true
+
+- name: Clean cron and at
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    regexp: "^(?!root).*$"
+    state: absent
+  with_items:
+    - /etc/at.allow
+    - /etc/cron.allow
+  become: true
+
+- name: Allow root cron and at
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    line: "root"
+    mode: 0600
+    state: present
+    create: 'yes'
+  with_items:
+    - /etc/at.allow
+    - /etc/cron.allow
+  become: true
+
+- name: mask atd
+  ansible.builtin.systemd:
+    name: atd
+    masked: 'yes'
+    enabled: 'no'
+    state: stopped
+  register: mask_atd
+  failed_when: mask_atd is not success and not "Could not find the requested service" in mask_atd.msg
+  become: true
+  ignore_errors: true
+
+- name: Find cron files and directories
+  ansible.builtin.find:
+    paths:
+      - /etc
+    patterns:
+      - cron.hourly
+      - cron.daily
+      - cron.weekly
+      - cron.monthly
+      - cron.d
+      - crontab
+    file_type: any
+  register: cron_directories
+  become: true
+
+- name: Ensure permissions on cron files and directories are configured
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: 0700
+  with_items: "{{ cron_directories.files }}"
+  become: true
+
+- name: Crontab permissions
+  ansible.builtin.file:
+    path: /etc/crontab
+    mode: 0600
+    owner: root
+    group: root
+  become: true

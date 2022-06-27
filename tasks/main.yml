@@ -23,15 +23,21 @@
 - ansible.builtin.include_tasks: facts.yml
 - ansible.builtin.include_tasks: dns.yml
 - ansible.builtin.include_tasks: pre.yml
+- ansible.builtin.include_tasks: auditd.yml
+- ansible.builtin.include_tasks: aide.yml
+- ansible.builtin.include_tasks: cron.yml
+- ansible.builtin.include_tasks: sysctl.yml
+- ansible.builtin.include_tasks: disablemodules.yml
+- ansible.builtin.include_tasks: ctrlaltdel.yml
+- ansible.builtin.include_tasks: limits.yml
+- ansible.builtin.include_tasks: journalconf.yml
+- ansible.builtin.include_tasks: users.yml
+# - ansible.builtin.include_tasks: timesyncd.yml
 
 # - ansible.builtin.include_tasks: firewall.yml
-#   tags: firewall
 #   when: firewall_enabled | bool
 
-- ansible.builtin.include_tasks: auditd.yml
-  tags: auditd
-  when: auditd_enabled | bool
+# - ansible.builtin.include_tasks: ipv6.yml
+#   when: disable_ipv6 | bool
 
-# - ansible.builtin.include_task: cron.yml
-#   tags: cron
-#   when: cron_enabled | bool
+

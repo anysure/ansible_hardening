@@ -1,5 +1,5 @@
 ansible_hardening
-=========
+=================
 
 This is the AnySURE role ansible_hardening.
 
@@ -11,7 +11,13 @@ Any pre-requisites that may not be covered by Ansible itself or the role should 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+| Variable | default | options | description |
+|----------|---------|---------|-------------|
+| resolv_nameservers| a base list | | A list of up to 3 nameserver IP addresses 
+| resolv_domain | our internal domain | "" | string |
+| resolv_search | our internal domain | list | List of up to 6 domains to search for host-name lookup  | 
+| resolv_sortlist | [] | list | List of IP-address and netmask pairs to sort addresses returned by gethostbyname. |
+| resolv_options | [] | list | List of options to modify certain internal resolver variables. |
 
 Dependencies
 ------------

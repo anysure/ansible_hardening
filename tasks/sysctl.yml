@@ -1,0 +1,30 @@
+---
+- name: Set sysctl dev.tty.ldisc_autoload
+  ansible.posix.sysctl:
+    name: dev.tty.ldisc_autoload
+    value: "{{ hardening_sysctl_dev_tty_ldisc_autoload|int }}"
+    state: present
+    sysctl_set: 'yes'
+  when: ansible_kernel is version("5",">=")
+  become: true
+
+- name: Set sysctl net.ipv6.conf.accept_ra_rtr_pref
+  ansible.posix.sysctl:
+    name: net.ipv6.conf.{{ ansible_default_ipv4.interface }}.accept_ra_rtr_pref
+    value: "{{ hardening_sysctl_net_ipv6_conf_accept_ra_rtr_pref|int }}"
+    state: present
+    sysctl_set: 'yes'
+  become: true
+
+- name: Configure sysctl
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value|int }}"
+    state: present
+    sysctl_set: 'yes'
+  with_dict: "{{ hardening_sysctl_settings }}"
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  notify:
+    - Restart sysctl
+  become: true
