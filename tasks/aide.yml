@@ -17,7 +17,7 @@
 
 - name: Exclude certain directories from aide
   ansible.builtin.template:
-    src: 99_aide_exclusions.j2
+    src: etc/aide/conf.f/99_aide_exclusions.j2
     dest: /etc/aide/aide.conf.d/99_aide_exclusions
   when: aide_conf.results[0].stat.exists | bool
   become: true
